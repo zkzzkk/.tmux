@@ -284,7 +284,7 @@ set -g status-interval 1     # redraw status line every 1 seconds
 bind-key -r -n M-j previous-window # select previous window
 bind-key -r -n M-k next-window     # select next window
 
-bind-key \ split-window -h
+bind-key \\ split-window -h
 
 bind-key j swap-window -t -1
 bind-key k swap-window -t +1
