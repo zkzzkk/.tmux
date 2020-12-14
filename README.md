@@ -10,8 +10,9 @@ Installation
 
 Requirements:
 
-  - tmux **`>= 2.1`** running inside Linux, Mac, OpenBSD, Cygwin or WSL (Bash on
-    Ubuntu on Windows)
+  - tmux **`>= 2.1`** (soon `>= 2.4`) running inside Linux, Mac, OpenBSD, Cygwin
+    or WSL
+  - awk, perl and sed
   - outside of tmux, `$TERM` must be set to `xterm-256color`
 
 To install, run the following from your terminal: (you may want to backup your
@@ -24,14 +25,24 @@ $ ln -s -f .tmux/.tmux.conf
 $ cp .tmux/.tmux.conf.local .
 ```
 
+💡 You can clone the repository anywhere you want, provided you create the
+proper `~/.tmux.conf` symlink and you copy the `.tmux.conf.local` sample file in
+your home directory:
+
+```
+$ git clone https://github.com/gpakosz/.tmux.git /path/to/oh-my-tmux
+$ ln -s -f /path/to/oh-my-tmux/.tmux.conf ~/.tmux.conf
+$ cp /path/to/oh-my-tmux/.tmux.conf.local ~/.tmux.conf.local
+```
+
 Then proceed to [customize] your `~/.tmux.conf.local` copy.
 
-[customize]: #enabling-the-powerline-look
+[customize]: #configuration
 
 If you're a Vim user, setting the `$EDITOR` environment variable to `vim` will
 enable and further customize the vi-style key bindings (see tmux manual).
 
-If you're new to tmux, I recommmend you read [tmux 2: Productive Mouse-Free
+If you're new to tmux, I recommend you read [tmux 2: Productive Mouse-Free
 Development][bhtmux2] by [@bphogan].
 
 [bhtmux2]: https://pragprog.com/book/bhtmux2/tmux-2
@@ -92,7 +103,7 @@ Features
  - `C-a` acts as secondary prefix, while keeping default `C-b` prefix
  - visual theme inspired by [Powerline][]
  - [maximize any pane to a new window with `<prefix> +`][maximize-pane]
- - SSH aware username and hostname status line information
+ - SSH/Mosh aware username and hostname status line information
  - mouse mode toggle with `<prefix> m`
  - automatic usage of [`reattach-to-user-namespace`][reattach-to-user-namespace]
    if available
@@ -100,9 +111,10 @@ Features
  - uptime status line information
  - optional highlight of focused pane (tmux `>= 2.1`)
  - configurable new windows and panes behavior (optionally retain current path)
- - SSH aware split pane (reconnects to remote server, experimental)
+ - SSH/Mosh aware split pane (reconnects to remote server)
  - copy to OS clipboard (needs [`reattach-to-user-namespace`][reattach-to-user-namespace]
    on macOS, `xsel` or `xclip` on Linux)
+ - support for 4-digit hexadecimal Unicode characters (requires `perl` or Bash >= 4.1.2)
  - [Facebook PathPicker][] integration if available
  - [Urlview][] integration if available
 
@@ -190,10 +202,10 @@ customize it further to your needs. Instead of altering the `~/.tmux.conf` file
 and diverging from upstream, the proper way is to edit the `~/.tmux.conf.local`
 file.
 
-Please refer to the default `~/.tmux.conf.local` file to know more about
-variables you can adjust to alter different behaviors. Pressing `<prefix> e`
-will open `~/.tmux.conf.local` with the editor defined by the `$EDITOR`
-environment variable (defaults to `vim` when empty).
+Please refer to the sample `.tmux.conf.local` file to know more about variables
+you can adjust to alter different behaviors. Pressing `<prefix> e` will open
+`~/.tmux.conf.local` with the editor defined by the `$EDITOR` environment
+variable (defaults to `vim` when empty).
 
 ### Enabling the Powerline look
 
@@ -207,35 +219,33 @@ To make use of these symbols, there are several options:
 - use a [pre-patched font][powerline patched fonts]
 - use your preferred font along with the [Powerline font][powerline font] (that
   only contains the Powerline symbols): [this highly depends on your operating
-  system and your terminal emulator][terminal support]
-- [patch your preferred font][powerline font patcher] by adding the missing
-  Powerline symbols: this is the most difficult way and is no more documented in
-  the [Powerline manual]
+  system and your terminal emulator][terminal support], for instance here's a
+  screenshot of iTerm2 configured to use `PowerlineSymbols.otf`
+  ![iTerm2 + Powerline font](https://user-images.githubusercontent.com/553208/62243890-8232f500-b3de-11e9-9b8c-51a5d38bdaa8.png)
 
 [source code pro]: https://github.com/adobe-fonts/source-code-pro/releases/tag/2.030R-ro/1.050R-it
 [powerline patched fonts]: https://github.com/powerline/fonts
 [powerline font]: https://github.com/powerline/powerline/raw/develop/font/PowerlineSymbols.otf
-[powerline font patcher]: https://github.com/powerline/fontpatcher
 [terminal support]: http://powerline.readthedocs.io/en/master/usage.html#usage-terminal-emulators
 [Powerline manual]: http://powerline.readthedocs.org/en/latest/installation.html#fonts-installation
 
 Please see the [Powerline manual] for further details.
 
-Then edit the `~/.tmux.conf.local` file (`<prefix> e`) and adjust the following
-variables:
+Then edit your `~/.tmux.conf.local` copy (with `<prefix> e`) and adjust the
+following variables:
 
 ```
-tmux_conf_theme_left_separator_main=''
-tmux_conf_theme_left_separator_sub=''
-tmux_conf_theme_right_separator_main=''
-tmux_conf_theme_right_separator_sub=''
+tmux_conf_theme_left_separator_main='\uE0B0'
+tmux_conf_theme_left_separator_sub='\uE0B1'
+tmux_conf_theme_right_separator_main='\uE0B2'
+tmux_conf_theme_right_separator_sub='\uE0B3'
 ```
 ### Configuring the status line
 
 Contrary to the first iterations of this configuration, by now you have total
 control on the content and order of `status-left` and `status-right`.
 
-Edit the `~/.tmux.conf.local` file (`<prefix> e`) and adjust the
+Edit your `~/.tmux.conf.local` copy (`<prefix> e`) and adjust the
 `tmux_conf_theme_status_left` and `tmux_conf_theme_status_right` variables to
 your own preferences.
 
@@ -246,20 +256,48 @@ This configuration supports the following builtin variables:
  - `#{battery_status}`: is battery charging or discharging?
  - `#{battery_vbar}`: vertical battery charge bar
  - `#{circled_session_name}`: circled session number, up to 20
- - `#{hostname}`: SSH aware hostname information
- - `#{hostname_ssh}`: SSH aware hostname information, blank when no SSH
-   connection detected
+ - `#{hostname}`: SSH/Mosh aware hostname information
+ - `#{hostname_ssh}`: SSH/Mosh aware hostname information, blank when not
+   connected to a remote server through SSH/Mosh
  - `#{loadavg}`: load average
  - `#{pairing}`: is session attached to more than one client?
  - `#{prefix}`: is prefix being depressed?
  - `#{root}`: is current user root?
- - `#{uptime_d}`: uptime days
+ - `#{synchronized}`: are the panes synchronized?
+ - `#{uptime_y}`: uptime years
+ - `#{uptime_d}`: uptime days, modulo 365 when `#{uptime_y}` is used
  - `#{uptime_h}`: uptime hours
  - `#{uptime_m}`: uptime minutes
  - `#{uptime_s}`: uptime seconds
- - `#{username}`: SSH aware username information
- - `#{username_ssh}`: SSH aware username information, blank when no SSH
-   connection detected
+ - `#{username}`: SSH/Mosh aware username information
+ - `#{username_ssh}`: SSH aware username information, blank when not connected
+   to a remote server through SSH/Mosh
+
+Beside custom variables mentioned above, the `tmux_conf_theme_status_left` and
+`tmux_conf_theme_status_right` variables support usual tmux syntax, e.g. using
+`#()` to call an external command that inserts weather information provided by
+[wttr.in]:
+```
+tmux_conf_theme_status_right='#{prefix}#{pairing}#{synchronized} #(curl -m 1 wttr.in?format=3 2>/dev/null; sleep 900) , %R , %d %b | #{username}#{root} | #{hostname} '
+```
+The `sleep 900` call makes sure the network request is issued at most every 15
+minutes whatever the value of `status-interval`.
+
+![Weather information from wttr.in](https://user-images.githubusercontent.com/553208/52175490-07797c00-27a5-11e9-9fb6-42eec4fe4188.png)
+
+[wttr.in]: https://github.com/chubin/wttr.in#one-line-output
+
+💡 You can also define your own custom variables. See the sample
+`.tmux.conf.local` file for instructions.
+
+Finally, remember `tmux_conf_theme_status_left` and
+`tmux_conf_theme_status_right` end up being given to tmux as `status-left` and
+`status-right` which means they're passed through `strftime()`. As such, the `%`
+character has a special meaning and needs to be escaped by doubling it, e.g.
+```
+tmux_conf_theme_status_right='#(echo foo %% bar)'
+```
+See `man 3 strftime`.
 
 ### Accessing the macOS clipboard from within tmux sessions
 
