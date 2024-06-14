@@ -36,8 +36,7 @@ tmux_conf_new_session_retain_current_path=false
 #   - true
 #   - false (default)
 #   - disabled (do not modify new-window bindings)
-#kzhang
-tmux_conf_new_window_retain_current_path=true
+tmux_conf_new_window_retain_current_path=false
 
 # new window tries to reconnect ssh sessions, possible values are:
 #   - true
@@ -195,16 +194,9 @@ tmux_conf_theme_terminal_title="#h ❐ #S ● #I #W"
 tmux_conf_theme_window_status_fg="$tmux_conf_theme_colour_3"
 tmux_conf_theme_window_status_bg="$tmux_conf_theme_colour_1"
 tmux_conf_theme_window_status_attr="none"
-
 tmux_conf_theme_window_status_format="#I #W#{?#{||:#{window_bell_flag},#{window_zoomed_flag}}, ,}#{?window_bell_flag,!,}#{?window_zoomed_flag,Z,}"
 #tmux_conf_theme_window_status_format="#{circled_window_index} #W#{?#{||:#{window_bell_flag},#{window_zoomed_flag}}, ,}#{?window_bell_flag,!,}#{?window_zoomed_flag,Z,}"
 #tmux_conf_theme_window_status_format="#I #W#{?#{||:#{window_bell_flag},#{window_zoomed_flag}}, ,}#{?window_bell_flag,🔔,}#{?window_zoomed_flag,🔍,}"
-
-#### add by kzhang
-#tmux_conf_theme_window_status_fg='#8a8a8a'              # light gray
-#tmux_conf_theme_window_status_bg='#080808'              # dark gray
-tmux_conf_theme_window_status_format='#I:#(pwd="#{pane_current_path}"; echo ${pwd####*/})#F'
-#### end kzhang
 
 # window current status style
 #   - built-in variables are:
@@ -219,16 +211,9 @@ tmux_conf_theme_window_status_format='#I:#(pwd="#{pane_current_path}"; echo ${pw
 tmux_conf_theme_window_status_current_fg="$tmux_conf_theme_colour_1"
 tmux_conf_theme_window_status_current_bg="$tmux_conf_theme_colour_4"
 tmux_conf_theme_window_status_current_attr="bold"
-
 tmux_conf_theme_window_status_current_format="#I #W#{?#{||:#{window_bell_flag},#{window_zoomed_flag}}, ,}#{?window_bell_flag,!,}#{?window_zoomed_flag,Z,}"
 #tmux_conf_theme_window_status_current_format="#{circled_window_index} #W#{?#{||:#{window_bell_flag},#{window_zoomed_flag}}, ,}#{?window_bell_flag,!,}#{?window_zoomed_flag,Z,}"
 #tmux_conf_theme_window_status_current_format="#I #W#{?#{||:#{window_bell_flag},#{window_zoomed_flag}}, ,}#{?window_bell_flag,🔔,}#{?window_zoomed_flag,🔍,}"
-
-## add by kzhang
-#tmux_conf_theme_window_status_current_fg='#000000'      # black
-#tmux_conf_theme_window_status_current_bg='#00afff'      # light blue
-tmux_conf_theme_window_status_current_format='#I:#(pwd="#{pane_current_path}"; echo ${pwd####*/})#F'
-## end
 
 # window activity status style
 tmux_conf_theme_window_status_activity_fg="default"
@@ -284,11 +269,6 @@ tmux_conf_theme_right_separator_sub="|"
 #     - #{username_ssh}
 tmux_conf_theme_status_left=" ❐ #S | ↑#{?uptime_y, #{uptime_y}y,}#{?uptime_d, #{uptime_d}d,}#{?uptime_h, #{uptime_h}h,}#{?uptime_m, #{uptime_m}m,} "
 tmux_conf_theme_status_right=" #{prefix}#{mouse}#{pairing}#{synchronized}#{?battery_status,#{battery_status},}#{?battery_bar, #{battery_bar},}#{?battery_percentage, #{battery_percentage},} , %R , %d %b | #{username}#{root} | #{hostname} "
-
-## kzhang
-tmux_conf_theme_status_left='#S'
-tmux_conf_theme_status_right='#{prefix}#{pairing} , %R , %d %b | #{username}#{root} | #{hostname} '
-## end
 
 # status left style
 tmux_conf_theme_status_left_fg="$tmux_conf_theme_colour_6,$tmux_conf_theme_colour_7,$tmux_conf_theme_colour_8"
@@ -381,8 +361,7 @@ tmux_conf_theme_clock_style="24"
 #   - false (default)
 #   - disabled
 # on Linux, this requires xsel, xclip or wl-copy
-#kzhang
-tmux_conf_copy_to_os_clipboard=true
+tmux_conf_copy_to_os_clipboard=false
 
 
 # -- urlscan -------------------------------------------------------------------
@@ -419,6 +398,17 @@ set -g mode-keys vi
 # move status line to top
 #set -g status-position top
 
+#=============== override settings by kzhang =========
+tmux_conf_new_window_retain_current_path=true
+
+tmux_conf_theme_window_status_format='#I:#(pwd="#{pane_current_path}"; echo ${pwd####*/})#F'
+tmux_conf_theme_window_status_current_format='#I:#(pwd="#{pane_current_path}"; echo ${pwd####*/})#F'
+
+tmux_conf_theme_status_left='#S'
+tmux_conf_theme_status_right='#{prefix}#{pairing} , %R , %d %b | #{username}#{root} | #{hostname} '
+
+tmux_conf_copy_to_os_clipboard=true
+
 #================ add by kzhang =============
 set -g prefix F12
 unbind C-b
@@ -435,24 +425,6 @@ bind-key \\ split-window -h
 
 bind-key j swap-window -t -1
 bind-key k swap-window -t +1
-
-#==================== tmux plugin manager https://github.com/tmux-plugins/tpm ================
-# List of plugins
-set -g @tpm_plugins '          \
-	tmux-plugins/tpm             \
-	tmux-plugins/tmux-sensible   \
-	nhdaly/tmux-better-mouse-mode \
-	tmux-plugins/tmux-copycat \
-	tmux-plugins/tmux-sidebar \
-'
-# Initialize TMUX plugin manager (keep this line at the very bottom of tmux.conf)
-run -b '~/.tmux/plugins/tpm/tpm'
-
-#== plugin https://github.com/NHDaly/tmux-better-mouse-mode =================
-#run-shell ~/.tmux/plugins/tmux-better-mouse-mode/scroll_copy_mode.tmux
-set -g @scroll-down-exit-copy-mode "on"
-set -g @scroll-speed-num-lines-per-scroll "5"
-
 
 # -- tpm -----------------------------------------------------------------------
 
@@ -495,6 +467,15 @@ tmux_conf_uninstall_plugins_on_reload=true
 #set -g @plugin 'tmux-plugins/tmux-continuum'
 #set -g @continuum-restore 'on'
 
+set -g @plugin 'tmux-plugins/tmux-copycat'
+set -g @plugin 'mux-plugins/tmux-sensible'
+set -g @plugin 'thewtex/tmux-mem-cpu-load'
+set -g @plugin 'tmux-plugins/tmux-sidebar'
+set -g @plugin 'nhdaly/tmux-better-mouse-mode'
+
+#kzhang for tmux-better-mouse-mode
+set -g @scroll-down-exit-copy-mode "on"
+set -g @scroll-speed-num-lines-per-scroll "5"
 
 # -- custom variables ----------------------------------------------------------
 
