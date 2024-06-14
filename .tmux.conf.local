@@ -405,7 +405,7 @@ tmux_conf_theme_window_status_format='#I:#(pwd="#{pane_current_path}"; echo ${pw
 tmux_conf_theme_window_status_current_format='#I:#(pwd="#{pane_current_path}"; echo ${pwd####*/})#F'
 
 tmux_conf_theme_status_left='#S'
-tmux_conf_theme_status_right='#{prefix}#{pairing} , %R , %d %b | #{username}#{root} | #{hostname} '
+tmux_conf_theme_status_right='#{prefix}#{pairing} , %R , %d %b , #($TMUX_PLUGIN_MANAGER_PATH/tmux-mem-cpu-load/tmux-mem-cpu-load -c -a 0 -g 0 -i 2) , #{hostname} '
 
 tmux_conf_copy_to_os_clipboard=true
 
