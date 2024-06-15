@@ -426,6 +426,10 @@ bind-key \\ split-window -h
 bind-key j swap-window -t -1
 bind-key k swap-window -t +1
 
+# make tmux use an interactive, non-login shell !!
+# This can solve issue that tmux don't source ~/.bashrc.
+set -g default-command "/bin/bash"
+
 # -- tpm -----------------------------------------------------------------------
 
 # while I don't use tpm myself, many people requested official support so here
